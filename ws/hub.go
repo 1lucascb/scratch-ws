@@ -40,7 +40,7 @@ func (h *Hub) ConnectedClients(sessionId string) uint8 {
 func (h *Hub) BroadcastSameSession(message *Message) {
 	h.clients.Range(func(key, value interface{}) bool {
 		client := key.(*WebSocketConnection)
-		if client.SessionId == message.SessionId {
+		if client.SessionId == message.SessionId && client.Id != message.ClientId {
 			if err := client.Conn.WriteMessage(OpText, message.Content); err != nil {
 				log.Printf("[Hub] Failed to send message to client %s: %v\n", client.Id, err)
 			}
