@@ -7,11 +7,8 @@ FROM golang:1.27-alpine AS builder
 WORKDIR /app
 
 # Cache dependencies before copying source code
-COPY go.mod go.sum ./
-RUN go mod download
-
-# Copy application source
 COPY . .
+RUN go mod download
 
 # Compile static binary:
 # - CGO_ENABLED=0 disables C library dependencies
