@@ -21,6 +21,12 @@ func main() {
 		},
 	}
 
+	http.HandleFunc("GET /health-check", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok"}`))
+	})
+
 	// WebSocket handler route
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		sessionId := r.URL.Query().Get("sessionId")
