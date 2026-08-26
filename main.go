@@ -36,8 +36,14 @@ func main() {
 		}
 
 		// only MAX_CONNECTIONS_PER_SESSION connections per session
-		if hub.ConnectedClients(sessionId) == MAX_CONNECTIONS_PER_SESSION {
+		if hub.ConnectedClientsCount(sessionId) == MAX_CONNECTIONS_PER_SESSION {
 			http.Error(w, "Enough clients connected to this session", http.StatusBadRequest)
+			return
+		}
+
+		clientId := r.URL.Query().Get("clientId")
+		if clientId != "" && hub.ClientIdAlreadyConnected(clientId, sessionId){
+			http.Error(w, "Client Id already connected to this session", http.StatusBadRequest)
 			return
 		}
 
@@ -46,7 +52,11 @@ func main() {
 			log.Printf("[HTTP] WebSocket upgrade failed: %v", err)
 			return
 		}
-		handleClient(hub, uuid.NewV4().String(), sessionId, conn)
+
+		if clientId == ""{
+			clientId = uuid.NewV4().String()
+		}
+		handleClient(hub, clientId, sessionId, conn)
 	})
 
 	server := &http.Server{

@@ -9,6 +9,19 @@ type Hub struct {
 	clients sync.Map
 }
 
+func (h *Hub) ClientIdAlreadyConnected(clientId, sessionId string) bool {
+	exists := false
+	h.clients.Range(func(key, value any) bool {
+		client := key.(*WebSocketConnection)
+		if client.Id == clientId && client.SessionId == sessionId{
+			exists = true
+			return false // finish loop
+		}
+		return true
+	})
+	return exists
+}
+
 func NewHub() *Hub {
 	return &Hub{
 		clients: sync.Map{},
@@ -23,7 +36,7 @@ func (h *Hub) Unregister(client *WebSocketConnection) {
 	h.clients.Delete(client)
 }
 
-func (h *Hub) ConnectedClients(sessionId string) uint8 {
+func (h *Hub) ConnectedClientsCount(sessionId string) uint8 {
 	var connectedClientsCount uint8
 
 	h.clients.Range(func(key, value any) bool {
